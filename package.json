@@ -1,13 +1,12 @@
 {
   "name": "simple-socks",
   "version": "3.1.0",
-  "description": "proxies requests ",
-  "type": "module",
   "main": "src/socks5.js",
   "engine": "node >= 16.0",
   "scripts": {
     "lint": "gulp lint",
-    "test": "gulp lint"
+    "test": "gulp lint",
+    "dev": "nodemon src/main.js"
   },
   "author": "https://github.com/brozeph",
   "contributors": [
@@ -38,9 +37,13 @@
   "devDependencies": {
     "eslint": "^8.21.0",
     "gulp": "^4.0.2",
-    "gulp-eslint": "^6.0.0"
+    "gulp-eslint": "^6.0.0",
+    "nodemon": "^3.0.1"
   },
   "dependencies": {
-    "binary": "^0.3.0"
+    "binary": "^0.3.0",
+    "dgram": "^1.0.1",
+    "ip": "^1.1.8",
+    "moment": "^2.29.4"
   }
 }
