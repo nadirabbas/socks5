@@ -83,6 +83,40 @@ class SocksServer {
 					});
 			}
 
+			function createUdpRequestBuffer(ip, port, data) {
+				const RSV = 0; // Reserved X'0000'
+				const FRAG = 0; // Current fragment number
+				const ATYP = 1; // Address type (IPv4 address: X'01')
+
+				// Convert the destination address string to binary representation
+				const DST_ADDR_BIN = Buffer.from(ip.split('.').map((num) => parseInt(num, 10)));
+
+				// Create the buffer
+				const bufferSize = 2 + 1 + 1 + DST_ADDR_BIN.length + 2 + data.length;
+				const buffer = Buffer.alloc(bufferSize);
+
+				// Write the individual components into the buffer
+				let offset = 0;
+				buffer.writeUInt16BE(RSV, offset);
+				offset += 2;
+
+				buffer.writeUInt8(FRAG, offset);
+				offset += 1;
+
+				buffer.writeUInt8(ATYP, offset);
+				offset += 1;
+
+				DST_ADDR_BIN.copy(buffer, offset);
+				offset += DST_ADDR_BIN.length;
+
+				buffer.writeUInt16BE(port, offset);
+				offset += 2;
+
+				data.copy(buffer, offset);
+
+				return buffer;
+			}
+
 			function readUdpDatagram(buffer) {
 
 				// Step 1: Read the fixed-length fields directly from the buffer.
@@ -132,7 +166,6 @@ class SocksServer {
 					if (message.includes('upnp')) return;
 
 
-
 					const isClient = clientInfo.address === socket.remoteAddress
 					const udpRelayAddress = udpServer.address();
 					let serverInfo;
@@ -144,14 +177,14 @@ class SocksServer {
 						serverInfo = {
 							address: socket.remoteAddress,
 							port: self.nat[udpRelayAddress.port],
-							data: msg
+							data: createUdpRequestBuffer(clientInfo.address, clientInfo.port, msg)
 						}
 					}
 
 					if (!serverInfo || !udpRelayAddress) {
 						return
 					}
-					console.log(`${moment().format('hh:mm A')} ${clientInfo.address}:${clientInfo.port} -> ${udpRelayAddress.address}:${udpRelayAddress.port} -> ${serverInfo.address}:${serverInfo.port}`)
+					console.log(`${moment().format('hh:mm:ss A')} ${clientInfo.address}:${clientInfo.port} -> ${udpRelayAddress.address}:${udpRelayAddress.port} -> ${serverInfo.address}:${serverInfo.port}`)
 
 					udpServer.send(serverInfo.data, serverInfo.port, serverInfo.address, (err) => {
 						if (err) {
