@@ -27,5 +27,5 @@ const send = (publicIp) => {
 }
 
 fetch('https://api.ipify.org/').then(res => res.text()).then((ip) => {
-  send(ip.replace('\\n', ''))
+  send(ip)
 })
