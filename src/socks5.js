@@ -247,6 +247,9 @@ class SocksServer {
 			}
 
 			function connect(buffer) {
+
+				console.log('connect', buffer)
+
 				let binaryStream = binary.stream(buffer);
 
 				binaryStream
@@ -299,7 +302,6 @@ class SocksServer {
 					.word16bu("dst.port")
 					.tap((args) => {
 						if (args.cmd === RFC_1928_COMMANDS.UDP_ASSOCIATE) {
-							console.log(args)
 							handleUdp(socket, args);
 						}
 
@@ -409,6 +411,9 @@ class SocksServer {
 			}
 
 			function handshake(buffer) {
+
+				console.log('handshake', buffer)
+
 				binary
 					.stream(buffer)
 					.word8("ver")
