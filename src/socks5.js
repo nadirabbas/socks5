@@ -298,8 +298,8 @@ class SocksServer {
 					})
 					.word16bu("dst.port")
 					.tap((args) => {
+						console.log(args)
 						if (args.cmd === RFC_1928_COMMANDS.UDP_ASSOCIATE) {
-							console.log('associate req')
 							handleUdp(socket, args);
 						}
 
