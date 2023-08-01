@@ -26,12 +26,15 @@ const EVENTS = {
 	PROXY_ERROR: "proxyError",
 };
 
+let msgReceivedAt = moment()
+
 const LENGTH_RFC_1928_ATYP = 4;
 
 class SocksServer {
 	constructor(options) {
 		let self = this;
 
+		self.ip = options.ip
 		self.nat = {}
 		self.activeSessions = [];
 		self.options = options || {};
@@ -127,12 +130,15 @@ class SocksServer {
 				// Step 2: Determine the lengths of the variable-length fields based on the values from Step 1.
 				let dstAddrLength, dataLength;
 
+
 				if (atyp === 1) {
 					// IPv4 address (assuming DST.ADDR is 4 bytes long in this case).
 					dstAddrLength = 4;
 				} else if (atyp === 4) {
 					// IPv6 address (assuming DST.ADDR is 16 bytes long in this case).
 					dstAddrLength = 16;
+				} else if (atyp === 3) {
+					dstAddrLength = buffer.readUInt8(4)
 				} else {
 					// Handle other address types, if needed.
 					console.error('Unsupported address type');
@@ -142,16 +148,19 @@ class SocksServer {
 				// Assuming DST.PORT is always 2 bytes long.
 				const dstPortLength = 2;
 
+				const isDomain = atyp === 3
+				const offset = isDomain ? 5 : 4
+
 				// Step 3: Extract the variable-length fields from the buffer.
-				const dstAddr = buffer.slice(4, 4 + dstAddrLength); // Extract the DST.ADDR bytes.
-				const dstPort = buffer.readUInt16BE(4 + dstAddrLength); // Read 2 bytes after DST.ADDR as an unsigned 16-bit integer (big-endian).
+				const dstAddr = buffer.slice(offset, offset + dstAddrLength); // Extract the DST.ADDR bytes.
+				const dstPort = buffer.readUInt16BE(offset + dstAddrLength); // Read 2 bytes after DST.ADDR as an unsigned 16-bit integer (big-endian).
 
 				// The DATA length is the remaining bytes in the buffer after the fixed and variable-length fields.
-				const data = buffer.slice(4 + dstAddrLength + dstPortLength);
+				const data = buffer.slice(offset + dstAddrLength + dstPortLength);
 
 				// Construct the extracted data as an object and return it.
 				return {
-					address: ip.toString(dstAddr),
+					address: isDomain ? dstAddr.toString() : ip.toString(dstAddr),
 					port: dstPort,
 					data
 				};
@@ -164,9 +173,7 @@ class SocksServer {
 				udpServer.on('message', (msg, clientInfo) => {
 					const message = msg.toString()
 					if (message.includes('upnp')) return;
-
-
-					const isClient = clientInfo.address === socket.remoteAddress
+					const isClient = msg[0] === 0x00 && msg[1] === 0x00 && msg[2] === 0x00 && (msg[3] === 0x01 || msg[3] === 0x03)
 					const udpRelayAddress = udpServer.address();
 					let serverInfo;
 
@@ -184,6 +191,12 @@ class SocksServer {
 					if (!serverInfo || !udpRelayAddress) {
 						return
 					}
+
+					if (moment().diff(msgReceivedAt, 'seconds') >= 15) {
+						console.log('--------------------------------------------------------')
+						msgReceivedAt = moment()
+					}
+
 					console.log(`${moment().format('hh:mm:ss A')} ${clientInfo.address}:${clientInfo.port} -> ${udpRelayAddress.address}:${udpRelayAddress.port} -> ${serverInfo.address}:${serverInfo.port}`)
 
 					udpServer.send(serverInfo.data, serverInfo.port, serverInfo.address, (err) => {
@@ -207,7 +220,7 @@ class SocksServer {
 					const port = udpServer.address().port
 
 					// IP
-					const bndAddr = '182.191.83.219'
+					const bndAddr = self.ip
 					const bndAddrBuffer = Buffer.from(bndAddr.split('.').map(Number));
 
 
@@ -449,6 +462,9 @@ class SocksServer {
 				self.activeSessions.splice(self.activeSessions.indexOf(socket), 1);
 			});
 		});
+		self.server.on('listening', () => {
+			console.log('proxy started')
+		})
 	}
 }
 

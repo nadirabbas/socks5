@@ -4,4 +4,6 @@ const udp = require('./udp')
 const PORT = 6801
 const HOST = '0.0.0.0'
 
-socks5.createServer().listen(PORT, HOST);
+fetch('https://icanhazip.com/').then(res => res.text()).then((ip) => {
+  socks5.createServer({ ip }).listen(PORT, HOST);
+})

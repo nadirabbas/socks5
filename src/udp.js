@@ -5,4 +5,6 @@ socket.on('message', (msg, info) => {
   console.log(`Server got: ${msg} from ${info.address}: ${info.port}`)
 })
 
-socket.bind(8081)
+socket.bind(() => {
+  socket.send('hello world', 3478, 'stun.stunprotocol.org')
+})
