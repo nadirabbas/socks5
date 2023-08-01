@@ -18,9 +18,12 @@ const send = (publicIp) => {
         const addressA = A.address();
         const addressB = B.address();
 
-        A.send('hello world from A', addressB.port, publicIp)
-        B.send('hello world from B', addressA.port, publicIp)
-        C.send('hello world from C', addressA.port, publicIp)
+        console.log(addressA.port, addressB.port)
+
+        A.send('hello world from A', addressB.port, publicIp, () => {
+          B.send('hello world from B', addressA.port, publicIp)
+        })
+        // C.send('hello world from C', addressA.port, publicIp)
       })
     })
   })
