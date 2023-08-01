@@ -1,14 +1,9 @@
 const dgram = require('dgram')
 
-const publicIp = '182.191.83.219'
-
-const sleep = (ms) => {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-const send = () => {
+const send = (publicIp) => {
   const A = dgram.createSocket('udp4')
   const B = dgram.createSocket('udp4')
+  const C = dgram.createSocket('udp4')
 
   const time = () => new Date().toLocaleTimeString('en-US', { hour12: false })
 
@@ -18,16 +13,19 @@ const send = () => {
   })
 
   A.bind(() => {
-    B.bind(8001, async () => {
-      const addressA = A.address();
-      const addressB = B.address();
+    B.bind(() => {
+      C.bind(() => {
+        const addressA = A.address();
+        const addressB = B.address();
 
-      A.send('hello world from A', addressB.port, publicIp)
-      B.send('hello world from B', addressA.port, publicIp)
-      B.send('hello world from B', addressA.port, publicIp)
-      B.send('hello world from B', addressA.port, publicIp)
+        A.send('hello world from A', addressB.port, publicIp)
+        B.send('hello world from B', addressA.port, publicIp)
+        C.send('hello world from C', addressA.port, publicIp)
+      })
     })
   })
 }
 
-send()
+fetch('https://api.ipify.org/').then(res => res.text()).then((ip) => {
+  send(ip.replace('\\n', ''))
+})
