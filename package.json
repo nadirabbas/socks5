@@ -1,39 +1,10 @@
 {
-  "name": "simple-socks",
-  "version": "3.1.0",
   "main": "src/socks5.js",
   "engine": "node >= 16.0",
   "scripts": {
-    "lint": "gulp lint",
-    "test": "gulp lint",
     "dev": "nodemon src/main.js"
   },
-  "author": "https://github.com/brozeph",
-  "contributors": [
-    "https://github.com/pronskiy",
-    "https://github.com/fabiensk",
-    "https://github.com/lanius-collaris"
-  ],
   "license": "MIT",
-  "keywords": [
-    "socks",
-    "socks5",
-    "socksv5",
-    "rfc 1928",
-    "rfc1928",
-    "rfc 1929",
-    "rfc1929",
-    "socks server",
-    "socks5 server",
-    "socksv5 server"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/brozeph/simple-socks.git"
-  },
-  "bugs": {
-    "url": "http://github.com/brozeph/simple-socks/issues"
-  },
   "devDependencies": {
     "eslint": "^8.21.0",
     "gulp": "^4.0.2",
