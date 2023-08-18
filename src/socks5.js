@@ -247,9 +247,6 @@ class SocksServer {
 			}
 
 			function connect(buffer) {
-
-				console.log('connect', [...buffer])
-
 				let binaryStream = binary.stream(buffer);
 
 				binaryStream
@@ -259,9 +256,6 @@ class SocksServer {
 					.word8("atyp")
 					.tap((args) => {
 						args.requestBuffer = buffer;
-
-						console.log(args)
-
 						if (args.ver !== RFC_1928_VERSION) {
 							return end(RFC_1928_REPLIES.GENERAL_FAILURE, args);
 						}
