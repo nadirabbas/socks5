@@ -169,6 +169,10 @@ class SocksServer {
 
 			function handleUdp(socket, args) {
 				const udpServer = dgram.createSocket('udp4');
+				let isClosed = false;
+
+				if(isClosed) console.log('Message to closed port')
+
 
 				udpServer.on('message', (msg, clientInfo) => {
 					const message = msg.toString()
@@ -241,7 +245,8 @@ class SocksServer {
 					})
 
 					socket.once('close', () => {
-						udpServer.close();
+						isClosed = true
+						// udpServer.close();
 					});
 				})
 			}
