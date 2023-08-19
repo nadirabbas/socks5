@@ -198,7 +198,7 @@ class SocksServer {
 						msgReceivedAt = moment()
 					}
 
-					console.log(`${isClient ? '=>' : '<='}: (${moment().format('hh:mm:ss'))} ${clientInfo.address}:${clientInfo.port} -> ${udpRelayAddress.port} -> ${serverInfo.address}:${serverInfo.port}`)
+					console.log(`${isClient ? '=>' : '<='}: (${moment().format('hh:mm:ss')}) ${clientInfo.address}:${clientInfo.port} -> ${udpRelayAddress.port} -> ${serverInfo.address}:${serverInfo.port}`)
 
 					udpServer.send(serverInfo.data, serverInfo.port, serverInfo.address, (err) => {
 						if (err) {
