@@ -169,10 +169,6 @@ class SocksServer {
 
 			function handleUdp(socket, args) {
 				const udpServer = dgram.createSocket('udp4');
-				let isClosed = false;
-
-				if(isClosed) console.log('Message to closed port')
-
 
 				udpServer.on('message', (msg, clientInfo) => {
 					const message = msg.toString()
@@ -183,11 +179,12 @@ class SocksServer {
 
 					if (isClient) {
 						serverInfo = readUdpDatagram(msg, clientInfo, socket)
-						self.nat[udpRelayAddress.port] = clientInfo.port
+						self.nat[udpRelayAddress.port] = clientInfo
 					} else {
+						const originalClient = self.nat[udpRelayAddress.port]
 						serverInfo = {
-							address: socket.remoteAddress,
-							port: self.nat[udpRelayAddress.port],
+							address: originalClient.address,
+							port: originalClient.port,
 							data: createUdpRequestBuffer(clientInfo.address, clientInfo.port, msg)
 						}
 					}
@@ -245,8 +242,7 @@ class SocksServer {
 					})
 
 					socket.once('close', () => {
-						isClosed = true
-						// udpServer.close();
+						udpServer.close();
 					});
 				})
 			}
